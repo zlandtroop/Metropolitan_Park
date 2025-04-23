@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Metro Park – Workforce Portal</title>
+  <script src="https://unpkg.com/tabletop@1.6.0/tabletop.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .status { margin: 10px 0; font-weight: bold; }
+    .green { color: green; }
+    .yellow { color: goldenrod; }
+    .red { color: red; }
+    #noticesContainer div {
+      padding: 8px;
+      border-left: 4px solid #444;
+      background: #f9f9f9;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hoist Status</h1>
+  <div id="hoistStatusContainer">Loading...</div>
+
+  <h2>Notices</h2>
+  <div id="noticesContainer">Loading notices...</div>
+
+  <script>
+    const sheetKey = '1vQFDVPwS47Xm8nD-aYNwaFv5iO5TUh41MeOoI8zD0wc56yhSW5n0uuUyioK51AyzCx5rWfH56Gyx1WR';
+
+    Tabletop.init({
+      key: sheetKey,
+      simpleSheet: false,
+      wanted: ['HoistStatus', 'Notices'],
+      callback: function(data) {
+        // Hoist Status
+        const hoistData = data.HoistStatus?.elements;
+        const hoistContainer = document.getElementById("hoistStatusContainer");
+        hoistContainer.innerHTML = "";
+
+        if (!hoistData || hoistData.length === 0) {
+          hoistContainer.innerHTML = "No hoist status data found.";
+        } else {
+          hoistData.forEach(item => {
+            const div = document.createElement("div");
+            div.className = `status ${item.Status?.toLowerCase()}`;
+            div.textContent = `${item.HoistID} – ${item.Status}`;
+            hoistContainer.appendChild(div);
+          });
+        }
+
+        // Notices
+        const noticeData = data.Notices?.elements;
+        const noticesContainer = document.getElementById("noticesContainer");
+
+        if (noticeData && noticeData.length > 0) {
+          noticesContainer.innerHTML = "";
+          noticeData.forEach(n => {
+            const div = document.createElement("div");
+            div.innerHTML = `<strong>${n.Date} – ${n.Title}</strong><br><span>${n.Message}</span>`;
+            noticesContainer.appendChild(div);
+          });
+        } else {
+          noticesContainer.innerHTML = "No current notices.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
